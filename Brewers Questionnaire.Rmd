@@ -1,0 +1,248 @@
+---
+title: "Brewers Questionnaire"
+author: "Jack Shannon"
+date: "11/27/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## **Question 1** 
+##### You roll five fair, six-sided dice. What is the probability that the sum of the five dice is 20? Please round your answer to four decimal places.
+
+
+```{r echo=TRUE}
+library(dice)
+getSumProbs(ndicePerRoll = 5, nsidesPerDie = 6)
+```
+While I could count the number of times the sum is 20 for when 5 six-sided dice are rolled and divide that number by 6^5, it is much faster to use the dice package in R. With this package we are able to able to find the true probabilities of various dice-rolling events given n dice with m sides in a matter of two lines. To answer this question I allowed n = 5 and m = 6, and looked at the row in the data table for when the sum = 20 to find that the probability is 0.0837.
+
+## **Question 2** 
+##### A company has invented a new device that turns red when exposed to an injured pitcher. The company claims that the device predicts injuries with 90% accuracy. That is, given that a pitcher is actually injured, the device will turn red 90% of the time. Given that the pitcher is not injured, the device will turn red 20% of the time. Assume that the population-level injury risk for pitchers is 5%.
+
+##### A randomly selected player takes the test and the device turns red. What is the probability that he is injured?
+
+From Bayes's Rule we know that:
+
+\begin{aligned}
+P(A|B) = \frac{P(B|A)P(A)}{P(B)}
+\end{aligned}
+
+Let A = an injured pitcher
+Let B = device is red
+
+\begin{aligned}
+P(A|B) = \frac{P(B|A)P(A)}{P(B)}
+\end{aligned}
+
+\begin{aligned}
+P(B|A)P(A)) = (0.9*0.05) = 0.045
+\end{aligned}
+
+\begin{aligned}
+P(B) = P(B|A)P(A) + P(B|A')P(A') = (0.9*0.05) + (0.2*0.95) = 0.045 + 0.19 = 0.235
+\end{aligned}
+
+\begin{aligned}
+P(A|B) = \frac{0.045}{0.235} = 0.1915
+\end{aligned}
+
+There is a 0.1915 probability that the randomly selected player is injured if the device turns red.
+
+## **Question 3** 
+##### You are given a data set containing all 2019 batted balls with columns for Exit Velocity (in mph) and Vertical Launch Angle (in degrees), as well as whether or not the ball was a home run. Your goal is to predict the probability of a home run given these two variables.
+
+##### You start by fitting a logistic regression model for the probability of a batted ball being a home run using only balls hit 90 mph or harder. The following coefficients are estimated:
+
+##### Intercept: -41.2
+##### Exit Velocity: 0.363
+##### Vertical Launch Angle: 0.096
+
+##### What is the predicted probability of a home run, under this model, for a batted ball hit 100 mph at 30 degrees?
+\begin{aligned}
+logOdds = 0.363*100 + 0.096*30 - 41.2 = -2.02
+\end{aligned}
+
+\begin{aligned}
+Odds = exp(logOdds) = 0.133
+\end{aligned}
+
+\begin{aligned}
+p = \frac{1}{(1+exp(-(logOdds)))} = 0.117
+\end{aligned}
+
+
+##### Is the marginal effect of an additional mph of exit velocity on the probability of a home run higher for a ball hit at 105 mph and 30 degrees, or 110 mph and 25 degrees, under this model? How do you know?
+
+Marginal effect for 105 mph and 30 degrees:
+
+\begin{aligned}
+0.363*105 + 0.096*30 - 41.2 = -.205 
+\end{aligned}
+
+\begin{aligned}
+exp(-.205) = 0.815 
+\end{aligned}
+
+\begin{aligned}
+p = \frac{1}{(1+exp(-(-.205)))} = 0.449  
+\end{aligned}
+
+Marginal effect for 106 mph and 30 degrees:
+
+\begin{aligned}
+0.363*106 + 0.096*30 - 41.2 = 0.158 
+\end{aligned}
+
+\begin{aligned}
+exp(0.158) = 1.171  
+\end{aligned}
+
+\begin{aligned}
+p = \frac{1}{(1+exp(-(0.158)))} = 0.539  
+\end{aligned}
+
+Marginal effect: $0.539 - 0.449 = 0.09$  
+
+
+Marginal effect for 110 mph and 25 degrees:
+
+\begin{aligned}
+0.363*110 + 0.096*25 - 41.2 = 1.13  
+\end{aligned} 
+
+\begin{aligned}
+exp(1.13) = 3.096
+\end{aligned}
+
+\begin{aligned}
+p = \frac{1}{(1+exp(-(1.13)))} = 0.756
+\end{aligned}
+
+Marginal effect for 111 mph and 25 degrees:
+
+\begin{aligned}
+0.363*111 + 0.096*25 - 41.2 = 1.493   
+\end{aligned}
+
+\begin{aligned}
+exp(1.493) = 4.450  
+\end{aligned}
+
+\begin{aligned}
+p = \frac{1}{(1+exp(-(1.493)))} = 0.817
+\end{aligned}
+
+Marginal effect: $0.817 - 0.756 = 0.061$
+
+
+The marginal effect of adding an additional mph of exit velocity on the probability of a home run is larger for a ball hit at 105 mph and 30 degrees.
+
+##### What is one change to your modeling procedure that you think would improve predictive power over this model without collecting more data?
+
+One change to my modeling procedure that I think would improve predictive power over this model without collecting more data would be to ensure no outliers exist in the dataset. By cleaning  the data I would be able to ensure the highest level of accuracy for the logistic regression model.
+
+## **Question 4** 
+##### Define a "weighted coin flip pitcher" as a pitcher who strikes out batters with rate p and walks batters with rate 1-p. This pitcher allows no batted balls, does not hit batters, does not throw wild pitches, does not pick to bases, and baserunners do not attempt steals. Assume that once the pitcher starts an inning, he will complete it.
+
+##### For which value of p is the pitcher expected to throw 80% scoreless innings? Please round your answer to two decimal places. Exact and approximate answers are both acceptable.
+
+p = strikeout (K)
+1-p = walk (BB)
+
+A scoreless inning will occur when the pitcher successfully strikeouts 3 batters before walking 4 batters. Therefore, we know that the 3 strikeouts will be constant while the number of walks in the inning will vary.
+
+
+$$\sum_{n=1}^3p^3*(1-p)^n$$
+
+
+For this pitcher to have a scoreless inning 80% of the time, we will set above equation equal to 0.8:
+
+\begin{aligned}
+p^3(1-p)^0 + p^3(1-p)^1 + p^3(1-p)^2 + p^3(1-p)^3 = 0.8
+\end{aligned}
+
+which will give you $p = 0.89$.
+
+## Question 5
+##### The Cardinals lead the division by three games over the Brewers and by four games over the Cubs. The Cubs and Cardinals play each other six more times and each play other teams three times, while the Brewers play nine remaining games against other teams.
+
+##### Assuming each game's results is a 50/50 coin flip, what is the probability of a three-way tie? Please round your answer to the nearest tenth of a percent.
+
+The probability of a three-way tie may be found through a summation of the binomial calculations of all the possibilities in record that result in a tie.
+
+Cardinals finish 1-8
+Brewers finish 4-5
+Cubs finish 5-4
+
+Cardinals finish 2-7
+Brewers finish 5-4
+Cubs finish 6-3
+
+Cardinals finish 3-6
+Brewers finish 6-3
+Cubs finish 7-2
+
+Cardinals finish 4-5
+Brewers finish 7-2
+Cubs finish 8-1
+
+While these are the only outcomes that allow for a three-way tie, there are several ways for these outcomes to occur.
+
+
+| 6 Games Against Each Other     | 3 Games Against Others|    Brewers 9 Games|
+| --------------:|--------------:| -----------:|--------:| ----------:|
+
+| Cardinals      | Cubs          | Cardinals   |    Cubs |    Brewers |
+| --------------:|--------------:| -----------:|--------:| ----------:|
+|  $1$            | $5$           |    $3$      |    $3$  |    $7$     |
+|  $0$            | $6$           |    $3$      |    $1$  |    $6$     |
+|  $1$            | $5$           |    $2$      |    $2$  |    $6$     |
+|  $2$            | $4$           |    $1$      |    $3$  |    $6$     |
+|  $0$            | $6$           |    $2$      |    $0$  |    $5$     |
+|  $1$            | $5$           |    $1$      |    $1$  |    $5$     |
+|  $2$            | $4$           |    $0$      |    $2$  |    $5$     |
+|  $1$            | $5$           |    $0$      |    $0$  |    $4$     |
+
+The probability of a three-way tie is:
+```{r echo=TRUE}
+dbinom(1,6,.5)*dbinom(3,3,.5)*dbinom(3,3,.5)*dbinom(7,9,.5) + dbinom(0,6,.5)*dbinom(3,3,.5)*dbinom(1,3,.5)*dbinom(6,9,.5) + dbinom(1,6,.5)*dbinom(2,3,.5)*dbinom(2,3,.5)*dbinom(6,9,.5) + dbinom(2,6,.5)*dbinom(1,3,.5)*dbinom(3,3,.5)*dbinom(6,9,.5) + dbinom(0,6,.5)*dbinom(2,3,.5)*dbinom(0,3,.5)*dbinom(5,9,.5) + dbinom(1,6,.5)*dbinom(1,3,.5)*dbinom(1,3,.5)*dbinom(5,9,.5) + dbinom(2,6,.5)*dbinom(0,3,.5)*dbinom(2,3,.5)*dbinom(5,9,.5) + dbinom(1,6,.5)*dbinom(0,3,.5)*dbinom(0,3,.5)*dbinom(4,9,.5)
+
+```
+
+Given the situation presented in the question, there is a 1.07% probability that the season will end in a three-way tie.
+
+## Question 6
+##### Given the following information, construct a basic model that suggests the likelihood of a successful stolen base given that the runner takes off for an empty second base:
+
+##### Identities of the runner, batter, pitcher, catcher and all other fielder, game state (date, score, inning, outs, count), temperature, crowd size, runner average sprint speed, pitcher release time, catcher pop time.
+
+##### Note: there is no need to find data and generate an actual model. Please just decribe how you would proceed assuming you had the data listed.
+
+Assuming I had the data listed, I would proceed by creating a logistic regression model similar to Question 3. This would provide me with the weighted coefficients for each of the listed identities in a fashion that is easy to work with. Within the identities, I would remove outliers in the data such as when a pitcher steals second base to increase the accuracy of the model.
+
+
+## Question 7
+
+##### If the Brewers had the option to purchase the 30th pick in the 2020 MLB Draft, how much would you recommend they pay to do so? Please explain your process for determining the value.
+
+While purchasing a draft pick is currently prohibited in the MLB, this may be changing in 2021. Since it has never been done before, there is a high level of unpredictability on how the price of purchasing a draft pick would compare to the slot value. With the Houston Astros controlling the 30th pick in the 2020 MLB Draft which has a slot value of roughly $2.3M, it is safe to assume that the Brewers would need to pay an amount in the neighborhood of 2.3M. Looking at the high success rate of all 1st round draft picks from recent years, the Brewers would expect this player to make the majors. 
+
+Since the Astros have a strong farm system and pride themselves on finding affordable talent further in the draft, I believe that they would be willing to sell their 30th pick if able. Since they would be willing to do so, I believe that they would accept an offer below the $2.3M slot value in the form of money or draft picks. I would estimate that the Brewers would need to pay $2.0M for the 30th pick in the 2020 MLB Draft.
+
+## Question 8
+##### In 500 words or fewer, please describe potential implications of moving the Brewers' AAA affiliate from Colorado Springs, CO to San Antonio, TX.
+
+The potential implications of moving the Brewers' AAA affiliate from Colorado Springs, CO to San Antonio, TX are on the logistics of baseball operations, player performance, and fan base.
+
+With any move in affiliates, the operations department must adapt. This involves figuring out what is the best way to transport players for away games and to the other Brewers' affiliates, where the players and coaches will live, and is the stadium properly outfitted. In addition, figuring out how to work with the new affiliate's staff to optimize the stadium for player development.
+
+Specific to the move from Colorado Springs, CO to San Antonio, TX, there is a major difference in elevation that would likely impact player performance. Since Colorado Springs is 5,385' higher in elevation, the ball will carry farther in Colorado compared to Texas. Therefore, you would expect an inflated offensive performance by the Colorado team. This inflation could have increased trade value of the prospects and by moving them to Texas it voided this small advantage, but it seems pretty negligible given other teams know the elevation effect as well.
+
+While the offensive performance of the team would be expected to decrease, you would expect the stats of you pitching staff to improve since they are no longer pitching in a hitter friendly park. This would increase the trade value of the pitching prospects.
+
+Lastly, the fan base would be impacted by the move from Colorado Springs, CO to San Antonio, TX. On the Colorado Springs side, the Brewers fans would be happy to keep an affiliate in the city. However, since it is changing from AAA to short season you would expect a decline in park attendance. For San Antonio, you would expect a gradual change for the fan base to go from the previous tenants, the San Diego Padres, to the Milwaukee Brewers as they begin to become more familiar with the player names and organization as a whole.
+
+
+
+
